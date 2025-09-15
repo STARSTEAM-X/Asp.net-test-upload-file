@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register User</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>📝 Register</h1>
+
+    <form id="registerForm">
+        <label>Username <input type="text" name="username" required></label>
+        <label>Password <input type="password" name="password" required></label>
+        <label>Firstname <input type="text" name="firstname" required></label>
+        <label>Surname <input type="text" name="surname" required></label>
+        <label>Date of Birth <input type="date" name="dateofbirth" required></label>
+        <label>Gender
+            <select name="gender">
+                <option value="male">ชาย</option>
+                <option value="female">หญิง</option>
+                <option value="other">อื่น ๆ</option>
+            </select>
+        </label>
+        <label>Email <input type="email" name="email" required></label>
+        <label>Profile Image <input type="file" id="profile_img" accept="image/*"></label>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p id="msg"></p>
+
+    <script>
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const r = new FileReader();
+                r.onload = () => resolve(r.result);   // จะได้ data:image/png;base64,...
+                r.onerror = reject;
+                r.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const file = document.getElementById("profile_img").files[0];
+            let base64String = null;
+
+            if (file) base64String = await fileToBase64(file);
+
+            const payload = {
+                username: form.username.value,
+                password: form.password.value,
+                firstname: form.firstname.value,
+                surname: form.surname.value,
+                dateofbirth: form.dateofbirth.value,
+                gender: form.gender.value,
+                email: form.email.value,
+                profile_img: base64String
+            };
+
+            const res = await fetch("http://localhost:5000/api/users/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById("msg").textContent = "✅ Register Success!";
+                // redirect ไปหน้า user.html?id=xxx
+                window.location = "user.html?id=" + data.id;
+            } else {
+                document.getElementById("msg").textContent = "❌ Error: " + (data.message || "Register failed");
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>👤 User Profile</h1>
+
+    <div id="userCard" class="card"></div>
+
+    <script>
+        async function loadUser() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+
+            const res = await fetch("http://localhost:5000/api/users/" + id);
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById("userCard").innerHTML = `
+          <p><b>Username:</b> ${data.username}</p>
+          <p><b>Name:</b> ${data.firstname} ${data.surname}</p>
+          <p><b>DOB:</b> ${data.dateofbirth}</p>
+          <p><b>Gender:</b> ${data.gender}</p>
+          <p><b>Email:</b> ${data.email}</p>
+          ${data.profile_img ? `<img src="http://localhost:5000${data.profile_img}" width="200">` : "<p>No profile image</p>"}
+        `;
+            } else {
+                document.getElementById("userCard").textContent = "❌ User not found";
+            }
+        }
+        loadUser();
+    </script>
+</body>
+
+</html>
